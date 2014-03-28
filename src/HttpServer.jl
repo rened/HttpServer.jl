@@ -84,6 +84,7 @@ immutable HttpHandler
     HttpHandler(handle::Function; writestotcpdirectly = false) = new(handle, Base.TcpServer(), defaultevents, writestotcpdirectly)
 end
 handle(handler::HttpHandler, req::Request, res::Response) = handler.handle(req, res)
+handle(handler::HttpHandler, req::Request, socket::IO) = handler.handle(req, socket)
 
 # Client encapsulates a single connection
 #
@@ -272,9 +273,14 @@ function message_handler(server::Server, client::Client, websockets_enabled::Boo
         local response
 
         try
-            response = handle(server.http, req, Response()) # Run the server handler
-            if !isa(response, Response)                     # Promote return to Response
-                response = Response(response)
+            if server.http.writestotcpdirectly
+                handle(server.http, req, client.sock)
+                return
+            else
+                response = handle(server.http, req, Response()) # Run the server handler
+                if !isa(response, Response)                     # Promote return to Response
+                    response = Response(response)
+                end
             end
         catch err
             response = Response(500)
