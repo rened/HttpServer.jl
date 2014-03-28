@@ -79,8 +79,9 @@ immutable HttpHandler
     handle::Function
     sock::Base.UVServer
     events::Dict
+    writestotcpdirectly::Bool
 
-    HttpHandler(handle::Function) = new(handle, Base.TcpServer(), defaultevents)
+    HttpHandler(handle::Function; writestotcpdirectly = false) = new(handle, Base.TcpServer(), defaultevents, writestotcpdirectly)
 end
 handle(handler::HttpHandler, req::Request, res::Response) = handler.handle(req, res)
 
