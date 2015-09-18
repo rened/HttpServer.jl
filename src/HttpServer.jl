@@ -17,6 +17,7 @@ export HttpHandler,
        # from HttpCommon
        Request,
        Response,
+       FileResponse,
        escapeHTML,
        parsequerystring,
        setcookie!
